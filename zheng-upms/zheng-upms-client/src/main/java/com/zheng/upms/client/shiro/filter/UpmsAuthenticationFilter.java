@@ -38,22 +38,31 @@ import java.util.List;
 
 /**
  * 重写authc过滤器
- * Created by shuzheng on 2017/3/11.
+ *
+ * @author shuzheng
+ * @date 2017/3/11
  */
 public class UpmsAuthenticationFilter extends AuthenticationFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpmsAuthenticationFilter.class);
 
-    // 局部会话key
+    /**
+     * 局部会话key
+     */
     private final static String ZHENG_UPMS_CLIENT_SESSION_ID = "zheng-upms-client-session-id";
-    // 单点同一个code所有局部会话key
+    /**
+     * 单点同一个code所有局部会话key
+     */
     private final static String ZHENG_UPMS_CLIENT_SESSION_IDS = "zheng-upms-client-session-ids";
 
     @Autowired
     UpmsSessionDao upmsSessionDao;
 
     @Override
-    protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+    protected boolean isAccessAllowed(ServletRequest request,
+                                      ServletResponse response,
+                                      Object mappedValue) {
+
         Subject subject = getSubject(request, response);
         Session session = subject.getSession();
         // 判断请求类型
@@ -69,7 +78,8 @@ public class UpmsAuthenticationFilter extends AuthenticationFilter {
     }
 
     @Override
-    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+    protected boolean onAccessDenied(ServletRequest request,
+                                     ServletResponse response) throws Exception {
         StringBuffer ssoServerUrl = new StringBuffer(PropertiesFileUtil.getInstance("zheng-upms-client").get("zheng.upms.sso.server.url"));
         // server需要登录
         String upmsType = PropertiesFileUtil.getInstance("zheng-upms-client").get("zheng.upms.type");
@@ -79,13 +89,13 @@ public class UpmsAuthenticationFilter extends AuthenticationFilter {
         }
         ssoServerUrl.append("/sso/index").append("?").append("appid").append("=").append(PropertiesFileUtil.getInstance("zheng-upms-client").get("zheng.upms.appID"));
         // 回跳地址
-        HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
-        StringBuffer backurl = httpServletRequest.getRequestURL();
-        String queryString = httpServletRequest.getQueryString();
+        HttpServletRequest backRequest = WebUtils.toHttp(request);
+        StringBuffer backUrl = backRequest.getRequestURL();
+        String queryString = backRequest.getQueryString();
         if (StringUtils.isNotBlank(queryString)) {
-            backurl.append("?").append(queryString);
+            backUrl.append("?").append(queryString);
         }
-        ssoServerUrl.append("&").append("backurl").append("=").append(URLEncoder.encode(backurl.toString(), "utf-8"));
+        ssoServerUrl.append("&").append("backUrl").append("=").append(URLEncoder.encode(backUrl.toString(), "utf-8"));
         WebUtils.toHttp(response).sendRedirect(ssoServerUrl.toString());
         return false;
     }
