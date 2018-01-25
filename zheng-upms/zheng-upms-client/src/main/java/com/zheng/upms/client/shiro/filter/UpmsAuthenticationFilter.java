@@ -95,7 +95,7 @@ public class UpmsAuthenticationFilter extends AuthenticationFilter {
         if (StringUtils.isNotBlank(queryString)) {
             backUrl.append("?").append(queryString);
         }
-        ssoServerUrl.append("&").append("backUrl").append("=").append(URLEncoder.encode(backUrl.toString(), "utf-8"));
+        ssoServerUrl.append("&").append("backurl").append("=").append(URLEncoder.encode(backUrl.toString(), "utf-8"));
         WebUtils.toHttp(response).sendRedirect(ssoServerUrl.toString());
         return false;
     }
