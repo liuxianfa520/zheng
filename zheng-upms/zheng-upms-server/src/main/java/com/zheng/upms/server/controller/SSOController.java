@@ -38,7 +38,9 @@ import java.util.UUID;
 
 /**
  * 单点登录管理
- * Created by shuzheng on 2016/12/10.
+ *
+ * @author shuzheng
+ * @date 2016/12/10
  */
 @Controller
 @RequestMapping("/sso")
@@ -46,11 +48,17 @@ import java.util.UUID;
 public class SSOController extends BaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SSOController.class);
-    // 全局会话key
+    /**
+     * 全局会话key
+     */
     private final static String ZHENG_UPMS_SERVER_SESSION_ID = "zheng-upms-server-session-id";
-    // 全局会话key列表
+    /**
+     * 全局会话key列表
+     */
     private final static String ZHENG_UPMS_SERVER_SESSION_IDS = "zheng-upms-server-session-ids";
-    // code key
+    /**
+     * code key
+     */
     private final static String ZHENG_UPMS_SERVER_CODE = "zheng-upms-server-code";
 
     @Autowired
@@ -129,7 +137,7 @@ public class SSOController extends BaseController {
         String hasCode = RedisUtil.get(ZHENG_UPMS_SERVER_SESSION_ID + "_" + sessionId);
         // code校验值
         if (StringUtils.isBlank(hasCode)) {
-            // 使用shiro认证
+            LOGGER.debug("Redis中key为'{}'的值isBlank;没有登录;使用shiro认证>>",ZHENG_UPMS_SERVER_SESSION_ID + "_" + sessionId);
             UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username, password);
             try {
                 if (BooleanUtils.toBoolean(rememberMe)) {
@@ -184,7 +192,7 @@ public class SSOController extends BaseController {
     public String logout(HttpServletRequest request) {
         // shiro退出登录
         SecurityUtils.getSubject().logout();
-        // 跳回原地址
+        // shiro:subject.logout后，redirect原地址(Referer)；在访问原地址时，会被filter拦截到，然后跳转到login页面
         String redirectUrl = request.getHeader("Referer");
         if (null == redirectUrl) {
             redirectUrl = "/";
